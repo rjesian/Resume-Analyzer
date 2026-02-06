@@ -1,0 +1,6 @@
+John Doe
+Software Engineer
+
+Skills: Python, Java, SQL, Data Analysis, Machine Learning
+Experience: Built data pipelines, analyzed customer behavior, developed APIs
+Education: BS Computer Science

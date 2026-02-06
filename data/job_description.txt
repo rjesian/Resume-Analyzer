@@ -1,0 +1,5 @@
+Software Engineer Position
+
+Required Skills: Python, SQL, data analysis, APIs
+Preferred: pandas, numpy, machine learning experience
+Responsibilities: Build data pipelines, analyze metrics, collaborate with team
