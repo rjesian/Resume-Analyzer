@@ -41,6 +41,11 @@ print(resume_freq.head())
 print("\nTop Job Description Words:")
 print(job_freq.head())
 
+df = pd.concat([resume_freq, job_freq], axis=1, keys=["resume", "job"])
+df = df.fillna(0)
+
+print("\n Aligned Word Frequencies:")
+print(df.head(10))
 
 
 
