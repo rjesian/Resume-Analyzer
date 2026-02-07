@@ -4,6 +4,14 @@ import numpy as np
 
 print("Resume Analyzer v0.01")
 
+STOPWORDS = {
+    'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
+    'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the',
+    'to', 'was', 'will', 'with', 'i', 'you', 'we', 'they', 'this',
+    'have', 'had', 'been', 'or', 'but', 'not', 'do', 'does', 'did',
+    'john', 'doe'
+}
+
 def read_file(path):
     with open(path, "r") as f:
         return f.read()
@@ -23,8 +31,17 @@ def clean_text(text):
     text = re.sub(r"[^a-z\s]", "", text)
     return text.split()
 
+def remove_stopwords(words):
+    """
+    Removes stopwords from a list of words.
+    """
+    return [word for word in words if word not in STOPWORDS]
+
 resume_words = clean_text(resume_text)
 job_words = clean_text(job_description_text)
+
+resume_words = remove_stopwords(resume_words)
+job_words = remove_stopwords(job_words)
 
 print("\n Resume Words:", resume_words[:10])
 print("\n Job Words:", job_words[:10])
@@ -62,11 +79,7 @@ similarity = dot_product / (job_norm * resume_norm)
 match_percentage = round(similarity * 100, 2)
 print(f"\n Resume Match Percentage: {match_percentage}%")
 
-if match_percentage >= 60:
+if match_percentage >= 50:
     print("\n Good match")
 else:
     print("\n Bad match")
-
-
-
-
