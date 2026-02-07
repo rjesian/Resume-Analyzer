@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import numpy as np
 
 print("Resume Analyzer v0.01")
 
@@ -46,6 +47,25 @@ df = df.fillna(0)
 
 print("\n Aligned Word Frequencies:")
 print(df.head(10))
+
+# Extract vectors from DataFrame
+resume_vector = df["resume"].to_numpy()
+job_vector = df["job"].to_numpy()
+
+# Compute cosine similarity
+dot_product = np.dot(resume_vector, job_vector)
+resume_norm = np.linalg.norm(resume_vector)
+job_norm = np.linalg.norm(job_vector)
+
+similarity = dot_product / (job_norm * resume_norm)
+
+match_percentage = round(similarity * 100, 2)
+print(f"\n Resume Match Percentage: {match_percentage}%")
+
+if match_percentage >= 60:
+    print("\n Good match")
+else:
+    print("\n Bad match")
 
 
 
