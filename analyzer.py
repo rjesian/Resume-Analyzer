@@ -1,4 +1,6 @@
 import re
+import pandas as pd
+
 print("Resume Analyzer v0.01")
 
 def read_file(path):
@@ -25,5 +27,21 @@ job_words = clean_text(job_description_text)
 
 print("\n Resume Words:", resume_words[:10])
 print("\n Job Words:", job_words[:10])
+
+# Converting word lists to panda Series
+resume_series = pd.Series(resume_words)
+job_series = pd.Series(job_words)
+
+# Count word frequencies
+resume_freq = resume_series.value_counts()
+job_freq = job_series.value_counts()
+
+print("\nTop Resume Words:")
+print(resume_freq.head())
+print("\nTop Job Description Words:")
+print(job_freq.head())
+
+
+
 
 
