@@ -1,24 +1,40 @@
 # Resume Analyzer
 
-A Python-based tool that analyzes how well a resume matches a job description using text processing and cosine similarity.
+A Python-based tool that analyzes how well a resume matches a job description using text processing, stopword filtering, and cosine similarity.
 
 ## Overview
 
-This project compares a resume against a job description and outputs a match percentage (0-100%). It uses **pandas** for data manipulation and **NumPy** for mathematical similarity calculations.
+This project compares a resume against a job description and outputs a match percentage (0-100%). It uses **pandas** for data manipulation, **NumPy** for mathematical similarity calculations, and implements **stopword filtering** to focus on relevant keywords.
 
 ## How It Works
 
-The analyzer follows a 5-step pipeline:
+The analyzer follows a 6-step pipeline:
 
 ### 1. **File Reading**
-Reads the resume and job description from text files.
+Reads the resume and job description from plain text files.
 
 ### 2. **Text Cleaning**
 - Converts all text to lowercase
-- Removes punctuation and special characters
+- Removes punctuation and special characters using regex
 - Splits text into individual words
 
-### 3. **Word Frequency Counting**
+**Example:**
+```
+Input:  "Skills: Python, Java, SQL!"
+Output: ["skills", "python", "java", "sql"]
+```
+
+### 3. **Stopword Filtering**
+Removes common words that don't contribute to job matching:
+- Articles: the, a, an
+- Conjunctions: and, or, but
+- Prepositions: in, on, at, to, from
+- Pronouns: I, you, he, she, it
+- Common verbs: is, are, was, have, do
+
+**Why this matters:** Focuses comparison on actual keywords (like "python", "sql") rather than generic language.
+
+### 4. **Word Frequency Counting**
 Uses pandas to count how many times each word appears in each document.
 
 **Example:**
@@ -27,8 +43,8 @@ Resume words: ["python", "data", "python", "sql"]
 Frequency: python=2, data=1, sql=1
 ```
 
-### 4. **Data Alignment**
-Combines both frequency counts into a single table where every unique word has a count from both documents.
+### 5. **Data Alignment**
+Combines both frequency counts into a single DataFrame where every unique word has a count from both documents.
 
 **Example:**
 ```
@@ -41,7 +57,7 @@ pandas        0     1  ← only in job
 
 Missing values are filled with 0.
 
-### 5. **Cosine Similarity Calculation**
+### 6. **Cosine Similarity Calculation**
 Treats each document as a vector and computes the angle between them using NumPy.
 
 **Formula:**
@@ -49,7 +65,7 @@ Treats each document as a vector and computes the angle between them using NumPy
 similarity = (A · B) / (||A|| × ||B||)
 ```
 
-- **A · B** = dot product (measures overlap)
+- **A · B** = dot product (measures overlap between vectors)
 - **||A||, ||B||** = vector magnitudes (normalization)
 
 The result is a number between 0 (no match) and 1 (perfect match), converted to a percentage.
@@ -92,28 +108,39 @@ The result is a number between 0 (no match) and 1 (perfect match), converted to 
 
 3. **View the results:**
 ```
-   Resume Analyzer v0.1
+   Resume Analyzer v0.01
 
-   ✓ Resume loaded: 187 characters
-   ✓ Job description loaded: 215 characters
+   Resume Loaded: 194 characters
+   Job Description: 210 characters
 
-   ✓ Resume words: ['john', 'doe', 'software', ...]
-   ✓ Job words: ['software', 'engineer', 'position', ...]
+   Resume Words: ['software', 'engineer', 'skills', 'python', 'java', ...]
+   Job Words: ['software', 'engineer', 'position', 'required', 'skills', ...]
 
-   📊 Top resume words:
+   Top Resume Words:
    data        2
+   software    1
+   engineer    1
    python      1
    java        1
-   ...
 
-   📊 Aligned word frequencies:
+   Top Job Description Words:
+   data        2
+   software    1
+   engineer    1
+   position    1
+   required    1
+
+   Aligned Word Frequencies:
               resume  job
    data         2.0  2.0
+   software     1.0  1.0
+   engineer     1.0  1.0
+   skills       1.0  1.0
    python       1.0  1.0
-   ...
 
-   🎯 Match Score: 55.56%
-   ❌ Bad match
+   Resume Match Percentage: 58.83%
+
+   Good match
 ```
 
 ## Project Structure
@@ -130,45 +157,87 @@ resume-analyzer/
 
 ## Understanding the Match Percentage
 
-- **80-100%:** Excellent match (rare unless resume is highly tailored)
-- **60-79%:** Good match (worth applying)
-- **50-59%:** Moderate match (consider tailoring resume)
-- **0-49%:** Weak match (significant gaps)
+- **70-100%:** Strong match (resume aligns well with job requirements)
+- **50-69%:** Moderate match (some alignment, may need tailoring)
+- **0-49%:** Weak match (significant gaps in requirements)
 
-**Note:** The current version (v1.0) treats all words equally, including names and common words. This can lower the match percentage. Future versions will filter out irrelevant words.
+**Threshold:** Currently set at 50% for a "good match"
 
 ## Technologies Used
 
 - **Python 3.x** - Core language
-- **pandas** - Data manipulation and frequency counting
-- **NumPy** - Mathematical similarity calculations
-- **Regular expressions (re)** - Text cleaning
+- **pandas** - Data manipulation, Series, DataFrames, value counting, alignment
+- **NumPy** - Vector operations, dot product, norm calculations
+- **Regular expressions (re)** - Text cleaning and pattern matching
 
-## Current Limitations (v0.01)
+## Current Limitations (v2.0)
 
-- Treats all words equally (names like "John" have same weight as skills like "Python")
-- No stopword filtering (common words like "the", "a", "is" affect the score)
-- No keyword weighting (technical skills aren't prioritized)
+### 1. **Manual Stopword List**
+- Stopwords are hardcoded (includes common English words + names)
+- Doesn't automatically identify domain-specific filler words
+- Requires manual updates for different contexts
+
+### 2. **Equal Word Weighting**
+- All non-stopwords are treated equally
+- "Python" (technical skill) has same weight as "experience" (generic term)
+- Doesn't prioritize job-critical keywords
+
+### 3. **No Semantic Understanding**
+- "machine learning" and "ML" are treated as different
+- Synonyms aren't recognized (e.g., "developed" vs "built")
+- No understanding of skill relationships
+
+### 4. **Text-Only Input**
 - Only supports plain text files
+- No PDF or Word document support
+- No parsing of structured resume formats
+
+### 5. **Single Document Comparison**
+- Compares one resume to one job description at a time
+- No batch processing or ranking multiple jobs
 
 ## Future Improvements (Planned)
 
-- [ ] Stopword filtering (remove common words)
-- [ ] Name detection and removal
-- [ ] Keyword weighting (prioritize technical skills)
-- [ ] Support for PDF files
-- [ ] Web interface for file uploads
-- [ ] Visualization of matching vs. non-matching words
+- [ ] **TF-IDF weighting** - Automatically downweight common words without hardcoding
+- [ ] **Keyword weighting** - Prioritize technical skills over generic terms
+- [ ] **PDF support** - Parse PDF resumes and job descriptions
+- [ ] **Synonym detection** - Recognize related terms (e.g., "ML" = "machine learning")
+- [ ] **Skill extraction** - Use NLP to identify only relevant technical skills
+- [ ] **Visualization** - Chart showing matching vs. non-matching keywords
+- [ ] **Batch processing** - Compare one resume against multiple job descriptions
+- [ ] **Web interface** - Upload files through a browser instead of command line
 
 ## Learning Outcomes
 
 This project demonstrates:
-- File I/O in Python
-- Text processing with regular expressions
-- Data manipulation with pandas (Series, DataFrames, concat, fillna)
-- Vector mathematics with NumPy (dot product, norms)
-- Cosine similarity for text comparison
-- Git version control and project structure
+- **File I/O** in Python
+- **Text processing** with regular expressions
+- **Data structures** - lists, sets, dictionaries
+- **pandas fundamentals** - Series, DataFrames, concat, fillna, value_counts
+- **NumPy operations** - arrays, dot product, vector norms
+- **Cosine similarity** for text comparison
+- **Stopword filtering** for text analysis
+- **Git version control** and incremental development
+- **Project structure** and documentation best practices
+
+## Key Concepts Learned
+
+### **Pandas:**
+- Converting lists to Series with `pd.Series()`
+- Counting frequencies with `.value_counts()`
+- Combining data with `pd.concat()`
+- Handling missing data with `.fillna()`
+- Converting to NumPy arrays with `.to_numpy()`
+
+### **NumPy:**
+- Dot product calculation with `np.dot()`
+- Vector magnitude with `np.linalg.norm()`
+- Array operations for mathematical computations
+
+### **Text Processing:**
+- Regex patterns for text cleaning
+- Stopword filtering techniques
+- Frequency-based text analysis
 
 ## License
 
@@ -177,3 +246,10 @@ This project is open source and available for educational purposes.
 ## Rifah Jesian
 
 Built as a learning project to understand pandas, NumPy, and text analysis through practical application.
+
+---
+
+## Version History
+
+- **v0.02** - Added stopword filtering to improve accuracy
+- **v0.01** - Initial implementation with basic text matching and cosine similarity
